@@ -1,0 +1,15 @@
+language: python
+python:
+  - 3.6
+
+install:
+  - pip install -r requirements.txt
+  - pip install -e .
+  - pip install pytest pytest-cov coveralls
+
+# command to run tests, e.g. python setup.py test
+script:
+  - pytest --cov=gitfit/
+
+after_success:
+  - coveralls
