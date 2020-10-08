@@ -2,6 +2,6 @@ name: py36
 dependencies:
 - numpy==1.16.2
 - astropy==4.0
-- pytest==3.2.1
+- pytest==4.6
 - pluggy==0.13.1
 - python>=3.6.7
