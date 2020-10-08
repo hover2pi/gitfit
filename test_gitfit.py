@@ -21,13 +21,18 @@ class TestGitfit(unittest.TestCase):
         # Set number of extensions
         self.n_ext = 2
 
+        # Make sure temp directory exists
+        self.temp_dir = resource_filename('gitfit', 'temp')
+        if not os.path.exists(self.temp_dir):
+            os.mkdir(self.temp_dir)
+
         # Make dummy large FITS file (960MB)
-        self.file = resource_filename('gitfit', 'temp/big_fits_file.fits')
+        self.file = os.path.join(self.temp_dir, 'big_fits_file.fits')
         self.shape = 15, 2000, 2000
         gitfit.make_dummy_file(self.file, shape=self.shape, n_ext=self.n_ext)
 
         # Make small file
-        self.small_file = resource_filename('gitfit', 'temp/small_fits_file.fits')
+        self.small_file = os.path.join(self.temp_dir, 'small_fits_file.fits')
         self.small_shape = 1, 10, 10
         gitfit.make_dummy_file(self.small_file, shape=self.small_shape, n_ext=self.n_ext)
 
@@ -36,7 +41,7 @@ class TestGitfit(unittest.TestCase):
         # Disassemble FITS file
         file_list = gitfit.disassemble(self.file, MB_limit=self.MB_limit)
         data_dir = os.path.basename(self.file).replace('.fits', '_data')
-        temp_files = glob(resource_filename('gitfit', 'temp/{}/*'.format(data_dir)))
+        temp_files = glob(os.path.join(self.temp_dir, '{}/*'.format(data_dir)))
 
         # Test files were created
         for file in file_list:
@@ -54,7 +59,7 @@ class TestGitfit(unittest.TestCase):
         data_dir = os.path.basename(self.small_file).replace('.fits', '_data')
 
         # Make sure no dir was created
-        no_data = resource_filename('gitfit', 'temp/{}'.format(data_dir))
+        no_data = os.path.join(self.temp_dir, data_dir)
         self.assertFalse(os.path.exists(no_data))
 
         # Check list of files is empty
@@ -96,7 +101,7 @@ class TestGitfit(unittest.TestCase):
     def test_make_dummy_file(self):
         """Test the make_dummy_file function"""
         # Dummy file path
-        path = resource_filename('gitfit', 'temp/dummy_file.fits')
+        path = os.path.join(self.temp_dir, 'dummy_file.fits')
 
         # Make the dummy file
         gitfit.make_dummy_file(path)
@@ -106,7 +111,6 @@ class TestGitfit(unittest.TestCase):
 
     def tearDown(self):
         """Remove test files"""
-        # Temp dir
-        temp = resource_filename('gitfit', 'temp')
-        shutil.rmtree(temp)
-        os.mkdir(temp)
+        # Remove temp contents
+        shutil.rmtree(self.temp_dir)
+        os.mkdir(self.temp_dir)
