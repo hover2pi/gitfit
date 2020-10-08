@@ -4,4 +4,4 @@ dependencies:
 - astropy==4.0
 - pytest==4.6
 - pluggy==0.13.1
-- python>=3.6.7
+- python==3.6.11
