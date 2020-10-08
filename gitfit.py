@@ -29,9 +29,6 @@ def disassemble(file, MB_limit=80, destination=None):
     list
         The list of file paths
     """
-    # Determine the file extension
-    ext = file.split('.')[-1].lower()
-
     # List of files to return
     filelist = []
 
@@ -98,7 +95,7 @@ def disassemble(file, MB_limit=80, destination=None):
                     # Add to list of filenames
                     filelist.append(filepath)
 
-        return filelist
+    return filelist
 
 
 def reassemble(file, save=False):
@@ -145,9 +142,6 @@ def reassemble(file, save=False):
         if save:
             hdulist.writeto(file, overwrite=True)
             shutil.rmtree(directory)
-
-    # Close the file
-    hdulist.close()
 
     return hdulist
 

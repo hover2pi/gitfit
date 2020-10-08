@@ -18,13 +18,18 @@ class TestGitfit(unittest.TestCase):
         # Set minimum file size in MB
         self.MB_limit = 80
 
+        # Set number of extensions
+        self.n_ext = 2
+
         # Make dummy large FITS file (960MB)
         self.file = resource_filename('gitfit', 'temp/big_fits_file.fits')
-        gitfit.make_dummy_file(self.file)
+        self.shape = 15, 2000, 2000
+        gitfit.make_dummy_file(self.file, shape=self.shape, n_ext=self.n_ext)
 
         # Make small file
-        self.smallfile = resource_filename('gitfit', 'temp/small_fits_file.fits')
-        gitfit.make_dummy_file(self.smallfile, shape=(1, 10, 10))
+        self.small_file = resource_filename('gitfit', 'temp/small_fits_file.fits')
+        self.small_shape = 1, 10, 10
+        gitfit.make_dummy_file(self.small_file, shape=self.small_shape, n_ext=self.n_ext)
 
     def test_disassemble(self):
         """Test that a large FITS file can be disassembled"""
@@ -45,15 +50,15 @@ class TestGitfit(unittest.TestCase):
     def test_disassemble_small(self):
         """Test that a small FITS file is not disassembled"""
         # Disassemble FITS file
-        file_list = gitfit.disassemble(self.smallfile, MB_limit=self.MB_limit)
-        data_dir = os.path.basename(self.smallfile).replace('.fits', '_data')
+        file_list = gitfit.disassemble(self.small_file, MB_limit=self.MB_limit)
+        data_dir = os.path.basename(self.small_file).replace('.fits', '_data')
 
         # Make sure no dir was created
         no_data = resource_filename('gitfit', 'temp/{}'.format(data_dir))
         self.assertFalse(os.path.exists(no_data))
 
         # Check list of files is empty
-        self.assertIsNone(file_list)
+        self.assertEqual(len(file_list), 0)
 
     def test_reassemble(self):
         """Test that a large FITS file can be reassembled"""
@@ -64,14 +69,14 @@ class TestGitfit(unittest.TestCase):
         self.assertEqual(len(hdulist), 3)
 
         # Check data shapes
-        self.assertEqual(hdulist[0].data.shape, self.data_shape)
-        self.assertEqual(hdulist[1].data.shape, self.data_shape)
+        for n in np.arange(self.n_ext):
+            self.assertEqual(hdulist[n + 1].data.shape, self.shape)
 
         # Reassemble HDUList and delete data
         hdulist = gitfit.reassemble(self.file, save=True)
 
-        # Check number of extensions
-        self.assertEqual(len(hdulist), 3)
+        # Check number of extensions (PRIMARY + SCI extensions)
+        self.assertEqual(len(hdulist), 1 + self.n_ext)
 
         # Check data was removed
         self.assertFalse(os.path.exists(self.file.replace('.fits', '_data')))
@@ -79,14 +84,14 @@ class TestGitfit(unittest.TestCase):
     def test_reassemble_small(self):
         """Test that a small FITS file is not reassembled"""
         # Reassemble HDUList
-        hdulist = gitfit.reassemble(self.smallfile)
+        hdulist = gitfit.reassemble(self.small_file)
 
-        # Check number of extensions
-        self.assertEqual(len(hdulist), 3)
+        # Check number of extensions (PRIMARY + SCI extensions)
+        self.assertEqual(len(hdulist), 1 + self.n_ext)
 
         # Check data shapes
-        self.assertEqual(hdulist[0].data.shape, self.data_shape)
-        self.assertEqual(hdulist[1].data.shape, self.data_shape)
+        for n in np.arange(self.n_ext):
+            self.assertEqual(hdulist[n + 1].data.shape, self.small_shape)
 
     def test_make_dummy_file(self):
         """Test the make_dummy_file function"""
