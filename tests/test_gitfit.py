@@ -68,6 +68,7 @@ class TestGitfit(unittest.TestCase):
     def test_reassemble(self):
         """Test that a large FITS file can be reassembled"""
         # Reassemble HDUList
+        _ = gitfit.disassemble(self.file, MB_limit=self.MB_limit)
         hdulist = gitfit.reassemble(self.file)
 
         # Check number of extensions
@@ -78,6 +79,7 @@ class TestGitfit(unittest.TestCase):
             self.assertEqual(hdulist[n + 1].data.shape, self.shape)
 
         # Reassemble HDUList and delete data
+        _ = gitfit.disassemble(self.file, MB_limit=self.MB_limit)
         hdulist = gitfit.reassemble(self.file, save=True)
 
         # Check number of extensions (PRIMARY + SCI extensions)
@@ -89,6 +91,7 @@ class TestGitfit(unittest.TestCase):
     def test_reassemble_small(self):
         """Test that a small FITS file is not reassembled"""
         # Reassemble HDUList
+        _ = gitfit.disassemble(self.small_file, MB_limit=self.MB_limit)
         hdulist = gitfit.reassemble(self.small_file)
 
         # Check number of extensions (PRIMARY + SCI extensions)
