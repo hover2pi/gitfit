@@ -8,7 +8,7 @@ import unittest
 from astropy.io import fits
 import numpy as np
 
-from gitfit import gitfit
+import gitfit
 
 
 class TestGitfit(unittest.TestCase):
